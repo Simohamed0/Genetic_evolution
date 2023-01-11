@@ -1,0 +1,108 @@
+/*_________________________________________________________
+
+:se syn=cpp
+onemax.ez // Evolve individuals containing 111111111111111111...
+
+__________________________________________________________*/
+
+\User declarations :    // it is possible to use pragmas / macro-definition
+#define SIZE 1000       // ici SIZE est la taille du génome
+float pMutPerGene=0.1;  // as well as global variables
+\end
+
+\User functions:        // define your c++ function there
+\end
+
+\User CUDA:             // define your cuda function there (fore NVIDIA cards)
+\end
+
+\Before everything else function:   // typically to read data from a file
+\end
+
+\After everything else function: //typically to write the result in a file 
+\end							              // after the evolution is finished
+
+\At the beginning of each generation function: // can be used to moodify 
+\end											                    //dynamic variable(mutation probability),..
+
+\At the end of each generation function:   //to pre-select some individuals to remove them from the next generation
+\end
+
+\At each generation before reduce function:  // can be used to save the best individu
+\end
+
+\User classes : // to define the structure of the genome of an individual 
+
+GenomeClass {	// typically an array of floats/ints/ or class/subclasses
+  int x[SIZE];
+}
+
+\end
+
+\GenomeClass::display: // to overload the display opert=ator of an individual
+\end
+
+\GenomeClass::initialiser : // "initializer" is also accepted   define how individuals are created
+							// EASEA provide a "random" function that
+							// return a values betwen [arg1,arg2[
+
+  for(int i=0; i<SIZE; i++ ) Genome.x[i] = random(0,2); 
+\end
+
+\GenomeClass::crossover : // to define the crossover operator
+  int nLocus=random(1,SIZE);// parent1,parent2 and child are reserved variabl
+	
+								// child is alreasy a  clone of parent1
+  for (int i=nLocus;i<SIZE;i++) // so it's only needed to ater child with genes
+     child.x[i]=parent2.x[i];	// from parent 2 . So after "locus" we copy the gennes if parent into child
+\end
+							
+
+\GenomeClass::mutator :  // to define the mutator operator
+  for (int i=0;i<SIZE;i++) // here, the child is called Genome
+    if (tossCoin(pMutPerGene)) Genome.x[i]=(Genome.x[i]+1)%2;
+								// "tosscoin" is provided by ESEA :it
+								// return 0 ou 1 with the probability
+\end
+
+\GenomeClass::evaluator : // Returns the  floating score of an individual called genom
+  float fScore=0;         // "evaluator " return a float
+  for (int i=0;i<SIZE;i++) fScore+=Genome.x[i];
+  return fScore;
+\end
+
+\User Makefile options:
+\end
+
+\Default run parameters :        // Please let the parameters appear in this order
+  Number of generations : 100   	// NB_GEN
+  Time limit: 0 			// In seconds, 0 to deactivate
+  Population size : 100			//POP_SIZE population initiale
+  Offspring size : 100 //  40 meean 40 ,40% means of POP__SIZE
+  Mutation probability : 1       // MUT_PROB  // la probabilité d'appler la fonction mutation  Xover function
+								 // otherwise,child is a clone  of parent 1
+  Crossover probability : 1      // XOVER_PROB //probabilté to create a crossover
+  Evaluator goal : maximise      // Maximise(or minimise)
+  Selection operator: Tournament 2 // retrun the best of n indviduals picked randomly
+  Surviving parents: 100%  // pre-selection of parent to be part  of the pop reduction
+  Surviving offspring: 100%  pre-selection of children to be part  of the pop reduction
+  Reduce parents operator: Tournament 2 // // hhow-preselcted parent are chosen 
+  Reduce offspring operator: Tournament 2 // how pre-selected parent are chosen 
+  Final reduce operator: Tournament 2 // how the next gen . is choseb from paren ° child
+
+  Elitism: Strong			//Weak or Strong
+  Elite: 1
+  Print stats: true				//Default: 1
+  Generate csv stats file:false
+  Generate gnuplot script:false
+  Generate R script:false
+  Plot stats:true				//Default: 0
+
+  Remote island model: false // parallelisme over sevral for severla precessus / machines
+  IP file: ip.txt 			//File containing all the remote island's IP
+  Server port : 2929		// sever port if sevral island on the same machine
+  Migration probability: 0.3 
+
+  Save population: false // false or the name of a file where to save the pop 
+  Start from file:false  // false or name of the file where to reloa the  pop  // $easena onemax.ez
+\end
