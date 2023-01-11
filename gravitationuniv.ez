@@ -1,0 +1,14 @@
+\User declarations :
+#define NB_SAMP 1000  // nombre d'échantillons 
+static float sample[NB_SAMP][2]; // 2 pour x et y
+#define X_MIN 0.0     // intervalle où je vais créer mes 
+#define X_MAX 10.0    // 1000 échantillons
+#define M_SOLEIL 1.9891e30 // masse du soleil en kg
+#define M_TERRE 5.972e24   // masse de la terre en kg
+#define G 6.67408e-11      // constante gravitationnelle
+\end
+
+\Before everything else function: // typically to read data from a file
+tSin[0][0] = 2.0 ; tSin[0][1] = 42.0; tSin[0][2] = 4.00;    // 1er sinus
+tSin[1][0] = 8.0 ; tSin[1][1] = 66.6; tSin[1][2] = 0.12;    // 2eme sinus
+tSin[2][0] = 1.414 ; tSin[2][1] = 1.732; tSin[2][2] = 2.25; // 3eme sinus
