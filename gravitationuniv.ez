@@ -1,14 +1,77 @@
+/*_________________________________________________________
+Under vim: syntax colouring is obtained using:
+:se syn=cpp
+sigdecomp.ez : décomposition de signal en somme de sinus
+__________________________________________________________*/
+
 \User declarations :
-#define NB_SAMP 1000  // nombre d'échantillons 
-static float sample[NB_SAMP][2]; // 2 pour x et y
-#define X_MIN 0.0     // intervalle où je vais créer mes 
-#define X_MAX 10.0    // 1000 échantillons
-#define M_SOLEIL 1.9891e30 // masse du soleil en kg
-#define M_TERRE 5.972e24   // masse de la terre en kg
-#define G 6.67408e-11      // constante gravitationnelle
+#define NB_SAMP 1024  // nombre d'échantillons 
+
 \end
 
 \Before everything else function: // typically to read data from a file
-tSin[0][0] = 2.0 ; tSin[0][1] = 42.0; tSin[0][2] = 4.00;    // 1er sinus
-tSin[1][0] = 8.0 ; tSin[1][1] = 66.6; tSin[1][2] = 0.12;    // 2eme sinus
-tSin[2][0] = 1.414 ; tSin[2][1] = 1.732; tSin[2][2] = 2.25; // 3eme sinus
+
+
+                         
+
+\After everything else function:  // typically to write the results in a file
+
+\end                              
+
+\User classes : 
+GenomeClass {   
+  
+}                        
+\end
+
+\GenomeClass::initialiser : // to define how new individuals are created
+
+\end
+
+\GenomeClass::crossover :     // to define the crossover operator
+ 
+\end
+
+\GenomeClass::mutator :       
+
+}
+\end
+
+\GenomeClass::evaluator :     // Returns the score of an individual called Genome
+
+\end
+
+\User Makefile options:
+\end
+
+\Default run parameters :
+  Number of generations : 100    
+  Time limit: 0                  // In seconds, 0 to deactivate
+  Population size : 10000          // POP_SIZE
+  Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
+  Crossover probability : 1     
+  Mutation probability : 1       // MUT_PROB probability to CALL the mutation function
+  Evaluator goal : minimise      // (or minimize)
+  Selection operator: Tournament 2 
+  Surviving parents: 100%        // pre-selection of parents to be part of the next gen.
+  Surviving offspring: 100%      // pre-selection of children to be part of the next gen.
+  Reduce parents operator: Tournament 2   // how pre-selected parents are chosen
+  Reduce offspring operator: Tournament 2 // how pre-selected children are chosen
+  Final reduce operator: Tournament 2 // how the next gen. is chosen from parents + children
+
+  Elitism: Strong			           // Strong = best parents in the next gen.
+  Elite: 1                       // Weak = best of parents + children in the next gen.
+  Print stats: true              // Default: true
+  Generate csv stats file:false  // Default: false
+  Generate gnuplot script:false  // Default: false
+  Generate R script:false        // Default: false
+  Plot stats:true                // Default: true
+
+  Remote island model: false     // parallelism over several processes / machines
+  IP file: ip.txt                // file containing all the remote island's IP
+  Server port : 2929             // server port if several islands on the same machine
+  Migration probability: 0.3     // probability of migrating the best individual / gen.
+
+  Save population: false         // false or name of the file where to save the pop
+  Start from file:false          // false or name of the file where to reload the pop
+\end
