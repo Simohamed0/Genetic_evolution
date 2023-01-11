@@ -1,7 +1,7 @@
 /*_________________________________________________________
-Under vim: syntax colouring is obtained using:
-:se syn=cpp
-sigdecomp.ez : décomposition de signal en somme de sinus
+Project:  Evolutionary Algorithms for the Law of Gravity 
+Authors:   FAID Mohamed ELMAHI Aymane
+Date:      14/01/2023
 __________________________________________________________*/
 
 \User declarations :
