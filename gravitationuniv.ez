@@ -1,25 +1,40 @@
+/*_________________________________________________________
+Project:  Evolutionary Algorithms for the Law of Gravity 
+Authors:  FAID Mohamed ELMAHI Aymane
+Date:     14/01/2023
+__________________________________________________________*/
 
 \User declarations:
 #define NB_SAMP 1000 // number of samples
 static float sample[NB_SAMP][4]; // 3 for time, y position of earth and y position of sun and force
-#define T_MIN 0.0 // interval where I will create my samples
-#define T_MAX 1.0 // in years
+
 #define G 6.67430e-11 // gravitational constant
 #define M_earth 5.972e24 // mass of earth
 #define M_sun 1.989e30 //mass of sun
 #define V_earth 29.78e3 // velocity of earth at perihelion
 #define r_perihelion 1.471e11 // distance between sun and earth at perihelion
+const double pi = 3.14159265358979323846;
+const double a = 149.6e6; // distance moyenne entre la Terre et le Soleil en km
+const double e = 0.0167;  // excentricité de l'orbite de la Terre
 \end
 
 \Before everything else function:
+
+
+
 for (int i=0;i<NB_SAMP;i++) { // for all samples
-float x=sample[i][0]=random(T_MIN, T_MAX);
-float x_earth = V_earth*x+r_perihelion; //x position of earth
-float y_earth = sqrt(r_perihelion*r_perihelion-(x_earth)*(x_earth));
-float F = (G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
-sample[i][1] = x_earth;
-sample[i][2] = y_earth;
-sample[i][3] = F;
+
+	double t = 2 * pi * i / NB_SAMP; 
+    float x_earth, y_earth;
+	x_earth = a * cos(t) - a * e;
+	y_earth = a * sqrt(1 - e*e) * sin(t);
+	
+	sample[i][0] = t;
+	sample[i][1] = x_earth;
+	sample[i][2] = y_earth;
+	
+	float F = (G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+	sample[i][3] = F;
 }
 \end
 
