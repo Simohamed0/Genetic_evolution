@@ -24,7 +24,7 @@ const double e = 0.0167;  // excentricité de l'orbite de la Terre
 
 for (int i=0;i<NB_SAMP;i++) { // for all samples
 
-	double t = 2 * pi * i / NB_SAMP; 
+	double t = random(0., 2. * pi * i / NB_SAMP); 
     float x_earth, y_earth;
 	x_earth = a * cos(t) - a * e;
 	y_earth = a * sqrt(1 - e*e) * sin(t);
@@ -40,25 +40,25 @@ for (int i=0;i<NB_SAMP;i++) { // for all samples
 
 \After everything else function:  // typically to write the results in a file
 printf("Constantes à retrouver: \n");
-printf("M_earth = %e ; M_sun = %e ; V_earth = %e ; R_perihelion = %e  \n", M_earth, M_sun, V_earth, r_perihelion);
+printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun,G);
 printf("Constantes trouvées: \n");
-printf("M_earth = %e ; M_sun = %e ; V_earth = %e ; R_perihelion = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->speed_earth_sun, bBest->distance_earth_sun);
+printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->constante_grav);
 \end
 
 \User classes :
 GenomeClass {
+
   float mass_earth;
   float mass_sun;
-  float speed_earth_sun;
-  float distance_earth_sun;
+  float constante_grav;
 }
 \end
 
 \GenomeClass::initialiser :
+
 Genome.mass_sun = random(1.989e+28, 2.011e+32);  //mass of sun 
 Genome.mass_earth = random(5.97e+22, 6.03e+26); //mass of earth
-Genome.speed_earth_sun = random(20.29e+03, 38.71e+03); //speed of earth
-Genome.distance_earth_sun = random(147.1e+8, 152.1e+10); //distance at perihelion
+Genome.constante_grav = random(6.67e-10, 6.69e-12); //gravitational constant
     
 \end
 
@@ -66,7 +66,7 @@ Genome.distance_earth_sun = random(147.1e+8, 152.1e+10); //distance at perihelio
 float fLocus = random(0.0, 1.0);
 if (fLocus < 0.33) child.mass_earth = parent2.mass_earth;
 if (fLocus < 0.66 && fLocus >= 0.33) child.mass_sun = parent2.mass_sun;
-if (fLocus >= 0.66) child.speed_earth_sun = parent2.speed_earth_sun;
+if (fLocus >= 0.66) child.speed_earth_sun = parent2.constante_grav;
 \end
 
 \GenomeClass::mutator :
@@ -79,7 +79,7 @@ for (int i=0;i<NB_SAMP;i++) {
   float x=sample[i][0];
   float x_earth = Genome.speed_earth_sun*x+Genome.distance_earth_sun; //x position of earth
   float y_earth = sample[i][1];
-  float F = (G*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+  float F = (Genome.constante_grav*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
   fScore+=abs(F-sample[i][3]);
 }
 return fScore;
@@ -89,7 +89,7 @@ return fScore;
 \end
 
 \Default run parameters :
-  Number of generations : 1000    
+  Number of generations : 100    
   Time limit: 0                  // In seconds, 0 to deactivate
   Population size : 10000          // POP_SIZE
   Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
