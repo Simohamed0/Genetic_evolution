@@ -1,108 +1,134 @@
 /*_________________________________________________________
-
-:se syn=cpp
-onemax.ez // Evolve individuals containing 111111111111111111...
-
+Project:  Evolutionary Algorithms for the Law of Gravity 
+Authors:  FAID Mohamed ELMAHI Aymane
+Date:     14/01/2023
 __________________________________________________________*/
 
-\User declarations :    // it is possible to use pragmas / macro-definition
-#define SIZE 1000       // ici SIZE est la taille du génome
-float pMutPerGene=0.1;  // as well as global variables
+\User declarations :
+#define NB_SAMP 1024  // nombre d'échantillons 
+static float sample[NB_SAMP][4]; // 2 pour les positions x, y de la Terre et du Soleil, 1 pour la force ,1 pour le temps
+
+static float G = 6.67e-11; // constante gravitationnelle
+float M_sun = 1.989e+30; // masse du Soleil
+float M_earth = 5.97e+24; // masse de la Terre
+float V_earthx = 29.78e+03; // vitesse de la Terre au périhélie
+float r_perihelion = 147.1e+09; // distance Terre-Soleil au périhélie
 \end
 
-\User functions:        // define your c++ function there
-\end
+\Before everything else function: // typically to read data from a file
 
-\User CUDA:             // define your cuda function there (fore NVIDIA cards)
-\end
+for (int i=0;i<NB_SAMP;i++) { // for all samples
 
-\Before everything else function:   // typically to read data from a file
-\end
-
-\After everything else function: //typically to write the result in a file 
-\end							              // after the evolution is finished
-
-\At the beginning of each generation function: // can be used to moodify 
-\end											                    //dynamic variable(mutation probability),..
-
-\At the end of each generation function:   //to pre-select some individuals to remove them from the next generation
-\end
-
-\At each generation before reduce function:  // can be used to save the best individu
-\end
-
-\User classes : // to define the structure of the genome of an individual 
-
-GenomeClass {	// typically an array of floats/ints/ or class/subclasses
-  int x[SIZE];
+    float x = sample[i][0] = i/1024.0; //time in years
+    float x_earth = V_earthx + r_perihelion; //x position of earth in m
+    float x_sun = 0;
+    float y_earth = sample[i][1] = sqrt(r_perihelion*r_perihelion - x_earth*x_earth); //y position of earth in m
+    float y_sun = sample[i][2] = 0; //y position of sun in m
+    float F = (G * M_earth * M_sun) / ((x_earth - x_sun) * (x_earth - x_sun) + (y_earth - y_sun) * (y_earth - y_sun));
+    sample[i][3] = F; // force in N
 }
+\end
+                         
 
+\After everything else function:  // typically to write the results in a file
+
+
+
+\User classes : 
+GenomeClass {
+
+    float mass[2]; // mass of sun and earth
+    float speed[1]; // speed of earth
+    float distance[1]; // distance of earth from sun at perihelion
+}
 \end
 
-\GenomeClass::display: // to overload the display opert=ator of an individual
+\GenomeClass::initialiser : 
+    Genome.mass[0] = random(1.989e+30, 2.011e+30);  //mass of sun 
+    Genome.mass[1] = random(5.97e+24, 6.03e+24); //mass of earth
+    Genome.speed[0] = random(29.29e+03, 30.71e+03); //speed of earth
+    Genome.distance[0] = random(147.1e+09, 152.1e+09); //distance at perihelion
 \end
 
-\GenomeClass::initialiser : // "initializer" is also accepted   define how individuals are created
-							// EASEA provide a "random" function that
-							// return a values betwen [arg1,arg2[
-
-  for(int i=0; i<SIZE; i++ ) Genome.x[i] = random(0,2); 
+\GenomeClass::crossover :     // to define the crossover operator
+    int nLocus=random(0,3); // prend une valeur dans [0,2] pour choisir un paramètre
+if(nLocus == 0) {
+float temp = Genome.mass[0];
+Genome.mass[0] = parent2.mass[0];
+parent2.mass[0] = temp;
+}
+else if(nLocus == 1) {
+float temp = Genome.mass[1];
+Genome.mass[1] = parent2.mass[1];
+parent2.mass[1] = temp;
+}
+else if(nLocus == 2) {
+float temp = Genome.speed[0];
+Genome.speed[0] = parent2.speed[0];
+parent2.speed[0] = temp;
+}
+else {
+float temp = Genome.distance[0];
+Genome.distance[0] = parent2.distance[0];
+parent2.distance[0] = temp;
+}
 \end
 
-\GenomeClass::crossover : // to define the crossover operator
-  int nLocus=random(1,SIZE);// parent1,parent2 and child are reserved variabl
-	
-								// child is alreasy a  clone of parent1
-  for (int i=nLocus;i<SIZE;i++) // so it's only needed to ater child with genes
-     child.x[i]=parent2.x[i];	// from parent 2 . So after "locus" we copy the gennes if parent into child
-\end
-							
+\GenomeClass::mutator :       
 
-\GenomeClass::mutator :  // to define the mutator operator
-  for (int i=0;i<SIZE;i++) // here, the child is called Genome
-    if (tossCoin(pMutPerGene)) Genome.x[i]=(Genome.x[i]+1)%2;
-								// "tosscoin" is provided by ESEA :it
-								// return 0 ou 1 with the probability
+}
 \end
 
-\GenomeClass::evaluator : // Returns the  floating score of an individual called genom
-  float fScore=0;         // "evaluator " return a float
-  for (int i=0;i<SIZE;i++) fScore+=Genome.x[i];
+GenomeClass::evaluator :     // Returns the score of an individual called Genome
+  float G = 6.67e-11; // gravitational constant
+  float M_sun = Genome.mass[0]; //mass of sun
+  float M_earth = Genome.mass[1]; //mass of earth
+  float V_earth = Genome.speed[0]; //speed of earth
+  float r_perihelion = Genome.distance[0]; //distance at perihelion
+  float fScore=0;
+  for (int i=0;i<NB_SAMP;i++) {     // for all samples
+    float x = sample[i][0]; //time in years
+    float y_earth = sample[i][1]; //y position of earth
+    float y_sun = sample[i][2]; //y position of sun
+    float x_earth = V_earth*x + r_perihelion; //x position of earth 
+    float x_sun = 0; 
+    float F = (G * M_earth * M_sun) / ((x_earth - x_sun) * (x_earth - x_sun) + (y_earth - y_sun) * (y_earth - y_sun));
+    fScore += abs(F - sample[i][3]); // difference between calculated and actual force
+  }
   return fScore;
 \end
 
 \User Makefile options:
 \end
 
-\Default run parameters :        // Please let the parameters appear in this order
-  Number of generations : 100   	// NB_GEN
-  Time limit: 0 			// In seconds, 0 to deactivate
-  Population size : 100			//POP_SIZE population initiale
-  Offspring size : 100 //  40 meean 40 ,40% means of POP__SIZE
-  Mutation probability : 1       // MUT_PROB  // la probabilité d'appler la fonction mutation  Xover function
-								 // otherwise,child is a clone  of parent 1
-  Crossover probability : 1      // XOVER_PROB //probabilté to create a crossover
-  Evaluator goal : maximise      // Maximise(or minimise)
-  Selection operator: Tournament 2 // retrun the best of n indviduals picked randomly
-  Surviving parents: 100%  // pre-selection of parent to be part  of the pop reduction
-  Surviving offspring: 100%  pre-selection of children to be part  of the pop reduction
-  Reduce parents operator: Tournament 2 // // hhow-preselcted parent are chosen 
-  Reduce offspring operator: Tournament 2 // how pre-selected parent are chosen 
-  Final reduce operator: Tournament 2 // how the next gen . is choseb from paren ° child
+\Default run parameters :
+  Number of generations : 100    
+  Time limit: 0                  // In seconds, 0 to deactivate
+  Population size : 10000          // POP_SIZE
+  Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
+  Crossover probability : 1     
+  Mutation probability : 1       // MUT_PROB probability to CALL the mutation function
+  Evaluator goal : minimise      // (or minimize)
+  Selection operator: Tournament 2 
+  Surviving parents: 100%        // pre-selection of parents to be part of the next gen.
+  Surviving offspring: 100%      // pre-selection of children to be part of the next gen.
+  Reduce parents operator: Tournament 2   // how pre-selected parents are chosen
+  Reduce offspring operator: Tournament 2 // how pre-selected children are chosen
+  Final reduce operator: Tournament 2 // how the next gen. is chosen from parents + children
 
-  Elitism: Strong			//Weak or Strong
-  Elite: 1
-  Print stats: true				//Default: 1
-  Generate csv stats file:false
-  Generate gnuplot script:false
-  Generate R script:false
-  Plot stats:true				//Default: 0
+  Elitism: Strong			           // Strong = best parents in the next gen.
+  Elite: 1                       // Weak = best of parents + children in the next gen.
+  Print stats: true              // Default: true
+  Generate csv stats file:false  // Default: false
+  Generate gnuplot script:false  // Default: false
+  Generate R script:false        // Default: false
+  Plot stats:true                // Default: true
 
-  Remote island model: false // parallelisme over sevral for severla precessus / machines
-  IP file: ip.txt 			//File containing all the remote island's IP
-  Server port : 2929		// sever port if sevral island on the same machine
-  Migration probability: 0.3 
+  Remote island model: false     // parallelism over several processes / machines
+  IP file: ip.txt                // file containing all the remote island's IP
+  Server port : 2929             // server port if several islands on the same machine
+  Migration probability: 0.3     // probability of migrating the best individual / gen.
 
-  Save population: false // false or the name of a file where to save the pop 
-  Start from file:false  // false or name of the file where to reloa the  pop  // $easena onemax.ez
+  Save population: false         // false or name of the file where to save the pop
+  Start from file:false          // false or name of the file where to reload the pop
 \end

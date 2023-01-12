@@ -15,21 +15,19 @@ static float sample[NB_SAMP][4]; // 3 for time, y position of earth and y positi
 for (int i=0;i<NB_SAMP;i++) { // for all samples
 float x=sample[i][0]=random(T_MIN, T_MAX);
 float x_earth = V_earth*x+r_perihelion; //x position of earth
-float x_sun = 0;
-float y_earth = sqrt(r_perihelion*r_perihelion-(x_earth-x_sun)*(x_earth-x_sun));
-float y_sun = 0;
-float F = (G*M_earth*M_sun)/((x_earth-x_sun)*(x_earth-x_sun)+(y_earth-y_sun)*(y_earth-y_sun));
-sample[i][1] = y_earth;
-sample[i][2] = y_sun;
+float y_earth = sqrt(r_perihelion*r_perihelion-(x_earth)*(x_earth));
+float F = (G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+sample[i][1] = x_earth;
+sample[i][2] = y_earth;
 sample[i][3] = F;
 }
 \end
 
 \After everything else function:  // typically to write the results in a file
 printf("Constantes à retrouver: \n");
-printf("M_earth = %f ; M_sun = %f ; V_earth = %f ; R_perihelion = %f  \n", M_earth, M_sun, V_earth, r_perihelion);
+printf("M_earth = %e ; M_sun = %e ; V_earth = %e ; R_perihelion = %e  \n", M_earth, M_sun, V_earth, r_perihelion);
 printf("Constantes trouvées: \n");
-printf("M_earth = %f ; M_sun = %f ; V_earth = %f  \n", bBest->mass_earth, bBest->mass_sun, bBest->speed_earth_sun, bBest->distance_earth_sun);
+printf("M_earth = %e ; M_sun = %e ; V_earth = %e ; R_perihelion = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->speed_earth_sun, bBest->distance_earth_sun);
 \end
 
 \User classes :
@@ -42,10 +40,11 @@ GenomeClass {
 \end
 
 \GenomeClass::initialiser :
-Genome.mass_earth = random(0.0, 10.0);
-Genome.mass_sun = random(0.0, 5.0);
-Genome.speed_earth_sun = random(10.0, 40.0);
-Genome.distance_earth_sun = random(0.0, 1.0);
+Genome.mass_sun = random(1.989e+28, 2.011e+32);  //mass of sun 
+Genome.mass_earth = random(5.97e+22, 6.03e+26); //mass of earth
+Genome.speed_earth_sun = random(20.29e+03, 38.71e+03); //speed of earth
+Genome.distance_earth_sun = random(147.1e+8, 152.1e+10); //distance at perihelion
+    
 \end
 
 \GenomeClass::crossover :
@@ -56,10 +55,7 @@ if (fLocus >= 0.66) child.speed_earth_sun = parent2.speed_earth_sun;
 \end
 
 \GenomeClass::mutator :
-float MUT_PROB = random(0.0, 1.0);
-if (tossCoin(MUT_PROB)) Genome.mass_earth+=random(0.0, 1.0)-0.5;
-if (tossCoin(MUT_PROB)) Genome.mass_sun+=random(0.0, 0.5)-0.25;
-if (tossCoin(MUT_PROB)) Genome.speed_earth_sun+=random(1.0, 4.0)-2.0;
+
 \end
 
 \GenomeClass::evaluator :
@@ -67,10 +63,8 @@ float fScore=0;
 for (int i=0;i<NB_SAMP;i++) {
   float x=sample[i][0];
   float x_earth = Genome.speed_earth_sun*x+Genome.distance_earth_sun; //x position of earth
-  float x_sun = 0;
   float y_earth = sample[i][1];
-  float y_sun = sample[i][2];
-  float F = (G*Genome.mass_earth*Genome.mass_sun)/((x_earth-x_sun)*(x_earth-x_sun)+(y_earth-y_sun)*(y_earth-y_sun));
+  float F = (G*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
   fScore+=abs(F-sample[i][3]);
 }
 return fScore;
@@ -80,7 +74,7 @@ return fScore;
 \end
 
 \Default run parameters :
-  Number of generations : 100    
+  Number of generations : 1000    
   Time limit: 0                  // In seconds, 0 to deactivate
   Population size : 10000          // POP_SIZE
   Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
@@ -110,6 +104,3 @@ return fScore;
   Save population: false         // false or name of the file where to save the pop
   Start from file:false          // false or name of the file where to reload the pop
 \end
-
-
-
