@@ -1,7 +1,21 @@
 /*_________________________________________________________
-Under vim: syntax colouring is obtained using:
-:se syn=cpp
-sigdecomp.ez : décomposition de signal en somme de sinus
+
+  This is a standard GP implementation on EASEA, 
+  aimed for sigdecomp.
+
+  For running on CPU, compile with:
+  $ make easeaclean ; easena -gp sigdecomp.ez ; make
+
+  Then run with:
+  $ ./sigdecomp --seed 2      // for a nice result :-)
+
+  You can test the parallel version on several cores with:
+  $ ./sigdecomp --seed 2 --nbCPUThreads 20
+
+  For running on GPU, compile with:	
+  $ make easeaclean ; easena -cuda_gp sigdecomp.ez ; make
+
+  Pierre Collet, 08/05/2020
 __________________________________________________________*/
 
 \User declarations :
