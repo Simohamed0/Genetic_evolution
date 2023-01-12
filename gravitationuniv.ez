@@ -66,7 +66,7 @@ Genome.constante_grav = random(6.67e-10, 6.69e-12); //gravitational constant
 float fLocus = random(0.0, 1.0);
 if (fLocus < 0.33) child.mass_earth = parent2.mass_earth;
 if (fLocus < 0.66 && fLocus >= 0.33) child.mass_sun = parent2.mass_sun;
-if (fLocus >= 0.66) child.speed_earth_sun = parent2.constante_grav;
+if (fLocus >= 0.66) child.constante_grav = parent2.constante_grav;
 \end
 
 \GenomeClass::mutator :
@@ -76,8 +76,8 @@ if (fLocus >= 0.66) child.speed_earth_sun = parent2.constante_grav;
 \GenomeClass::evaluator :
 float fScore=0;
 for (int i=0;i<NB_SAMP;i++) {
-  float x=sample[i][0];
-  float x_earth = Genome.speed_earth_sun*x+Genome.distance_earth_sun; //x position of earth
+
+  float x_earth = sample[i][0];
   float y_earth = sample[i][1];
   float F = (Genome.constante_grav*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
   fScore+=abs(F-sample[i][3]);
