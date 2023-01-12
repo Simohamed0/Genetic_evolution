@@ -9,8 +9,8 @@ __________________________________________________________*/
 static float sample[NB_SAMP][4]; // 3 for time, y position of earth and y position of sun and force
 
 #define G 6.67430e-11 // gravitational constant
-#define M_earth 5.972e24 // mass of earth
-#define M_sun 1.989e30 //mass of sun
+#define M_earth  5.972e24 / 1.989e30 // masse terrestre par rapport à la masse du Soleil
+#define M_sun 1 // masse solaire du Soleil
 #define V_earth 29.78e3 // velocity of earth at perihelion
 #define r_perihelion 1.471e11 // distance between sun and earth at perihelion
 const double pi = 3.14159265358979323846;
@@ -33,14 +33,15 @@ for (int i=0;i<NB_SAMP;i++) { // for all samples
 	sample[i][1] = x_earth;
 	sample[i][2] = y_earth;
 	
-	float F = (G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+	float F = 1e18*(G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
 	sample[i][3] = F;
 }
 \end
 
 \After everything else function:  // typically to write the results in a file
+
 printf("Constantes à retrouver: \n");
-printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun,G);
+printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun ,g );
 printf("Constantes trouvées: \n");
 printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->constante_grav);
 \end
@@ -56,9 +57,9 @@ GenomeClass {
 
 \GenomeClass::initialiser :
 
-Genome.mass_sun = random(1.989e+30, 2.011e+30);  //mass of sun 
-Genome.mass_earth = random(5.97e+24, 6.03e+24); //mass of earth
-Genome.constante_grav = random(6.67e-11, 6.69e-11); //gravitational constant
+Genome.mass_sun = random(0.99,1.01);  //mass of sun 
+Genome.mass_earth = random(1e-5, 1e+8); //mass of earth
+Genome.constante_grav = random(6.67e-12, 6.69e-10); //gravitational constant
     
 \end
 
@@ -79,7 +80,7 @@ for (int i=0;i<NB_SAMP;i++) {
 
   float x_earth = sample[i][0];
   float y_earth = sample[i][1];
-  float F = (Genome.constante_grav*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+  float F = 1e18*(Genome.constante_grav*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
   fScore+=abs(F-sample[i][3]);
 }
 return fScore;
@@ -89,7 +90,7 @@ return fScore;
 \end
 
 \Default run parameters :
-  Number of generations : 1000
+  Number of generations : 30
   Time limit: 0                  // In seconds, 0 to deactivate
   Population size : 10000          // POP_SIZE
   Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
