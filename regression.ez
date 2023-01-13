@@ -34,7 +34,7 @@ __________________________________________________________*/
 #define POLY(x) x*x*x-3*x*x+x // This is the function to find back
 \end
 
-\User functions:
+\User functions :
 
 /**
    The "generateData()" function generates NO_FITNESS_CASES fitness cases,

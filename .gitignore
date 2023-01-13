@@ -1,0 +1,9 @@
+*.cpp
+*.hpp
+gravitationuniv_2023*
+Makefile
+*.dat
+*.mak
+*.plot
+*.o
+*.plot

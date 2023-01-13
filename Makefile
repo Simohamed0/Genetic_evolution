@@ -1,1 +1,0 @@
-gravitationuniv.mak
