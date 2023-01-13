@@ -41,7 +41,7 @@ for (int i=0;i<NB_SAMP;i++) { // for all samples
 \After everything else function:  // typically to write the results in a file
 
 printf("Constantes à retrouver: \n");
-printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun ,g );
+printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun ,G );
 printf("Constantes trouvées: \n");
 printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->constante_grav);
 \end
