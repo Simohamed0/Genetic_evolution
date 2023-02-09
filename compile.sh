@@ -1,4 +1,4 @@
 easena gravitationuniv.ez
 make 
-./gravitationuniv
+./gravitationuniv --seed 2 --nbCPUThreads 20
 make easeaclean
