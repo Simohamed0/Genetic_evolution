@@ -1,21 +1,24 @@
 /*_________________________________________________________
 Project:  Evolutionary Algorithms for the Law of Gravity 
-Authors:  FAID Mohamed ELMAHI Aymane
+Authors:  FAID Mohamed and ELMAHI Aymane
 Date:     14/01/2023
 __________________________________________________________*/
 
 \User declarations:
-#define NB_SAMP 1000 // number of samples
+#define NB_SAMP 20 // number of samples
 static float sample[NB_SAMP][4]; // 3 for time, y position of earth and y position of sun and force
+
+
 
 #define G 6.67430e-11 // gravitational constant
 #define M_earth  3.00273e-6 // masse terrestre par rapport à la masse du Soleil
 #define M_sun 1.0 // masse solaire du Soleil
-#define V_earth 29.78e3 // velocity of earth at perihelion
-#define r_perihelion 1.471e11 // distance between sun and earth at perihelion
+#define T 31.6e6 // période de révolution de la Terre autour du Soleil en secondes
 const double pi = 3.14159265358979323846;
 const double a = 149.6e6; // distance moyenne entre la Terre et le Soleil en km
 const double e = 0.0167;  // excentricité de l'orbite de la Terre
+
+
 \end
 
 \Before everything else function:
@@ -25,25 +28,26 @@ const double e = 0.0167;  // excentricité de l'orbite de la Terre
 for (int i=0;i<NB_SAMP;i++) { // for all samples
 
 	double t = random(0., 2. * pi * i / NB_SAMP); 
-    float x_earth, y_earth;
+  float x_earth, y_earth ;
 	x_earth = a * cos(t) - a * e;
 	y_earth = a * sqrt(1 - e*e) * sin(t);
-	
+
 	sample[i][0] = t;
 	sample[i][1] = x_earth;
 	sample[i][2] = y_earth;
-	
-	float F = 1e18*(G*M_earth*M_sun)/(((x_earth)*(x_earth))+((y_earth)*(y_earth)));
+
+	float F = 1e30*(G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
 	sample[i][3] = F;
+
 }
 \end
 
 \After everything else function:  // typically to write the results in a file
 
 printf("Constantes à retrouver: \n");
-printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", M_earth, M_sun ,G );
+printf("M_earth = %e ; M_sun = %e \n", M_earth, M_sun);
 printf("Constantes trouvées: \n");
-printf("M_earth = %e ; M_sun = %e  ; constante_gravitationelle = %e  \n", bBest->mass_earth, bBest->mass_sun, bBest->constante_grav);
+printf("M_earth = %e ; M_sun = %e \n", bBest->mass_earth, bBest->mass_sun);
 \end
 
 \User classes :
@@ -51,47 +55,61 @@ GenomeClass {
 
   float mass_earth;
   float mass_sun;
-  float constante_grav;
+
 }
 \end
 
 \GenomeClass::initialiser :
 
-Genome.mass_sun = random(0.7,1.3);  //mass of sun 
-Genome.mass_earth = random(1e-8, 1e-5); //mass of earth
-Genome.constante_grav = random(6.67e-12, 6.69e-10); //gravitational constant
+Genome.mass_sun = random(0.5,1.5);  //mass of sun 
+Genome.mass_earth = random(1e-9, 1e-3); //mass of earth
     
 \end
 
 \GenomeClass::crossover :
-int nLocus = random(0, 2); // choose a random locus to crossover
-for (int i=0;i<=nLocus;i++) {
-child.mass_earth=parent1.mass_earth;
-child.mass_sun=parent1.mass_sun;
-child.constante_grav=parent1.constante_grav;
-}
-for (int i=nLocus+1;i<3;i++) {
-child.mass_earth=parent2.mass_earth;
-child.mass_sun=parent2.mass_sun;
-child.constante_grav=parent2.constante_grav;
-}
+
+float weight1 = random(0.0, 1.0); // randomly choose weight for first parent's gene
+float weight2 = 1.0 - weight1; // second weight is the complement of first weight
+
+child.mass_earth = weight1*parent1.mass_earth + weight2*parent2.mass_earth;
+child.mass_sun = weight1*parent1.mass_sun + weight2*parent2.mass_sun;
 \end
 
 \GenomeClass::mutator :
+
+float mutation_rate = 0.1; // mutation rate
+float mutation_size = 0.1; // mutation size
+
+if (random(0.0, 1.0) < mutation_rate) {
+  Genome.mass_earth += random(-mutation_size, mutation_size) * Genome.mass_earth;
+}
+if (random(0.0, 1.0) < mutation_rate) {
+  Genome.mass_sun += random(-mutation_size, mutation_size) * Genome.mass_sun;
+}
 
 
 \end
 
 \GenomeClass::evaluator :
-float fScore = 0;
-  for (int i = 0; i < NB_SAMP; i++) {
-    float x_earth = sample[i][1];
-    float y_earth = sample[i][2];
-    float F = 1e18 * (Genome.constante_grav * Genome.mass_earth * Genome.mass_sun) / 
-             ((x_earth) * (x_earth) + (y_earth) * (y_earth));
-    fScore += abs(F - sample[i][3]);
-  }
-  return fScore;
+
+float fScore=0;
+
+for (int i=0;i<NB_SAMP;i++) {
+
+  float x_earth = sample[i][1];
+  float y_earth = sample[i][2];
+  float F = 1e30*(G*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+  fScore= fScore + abs(F-sample[i][3]) ;
+  
+}
+
+// mtn la troisième loi de Kepler
+
+float k = 1/((Genome.mass_earth+Genome.mass_sun));
+fScore += fScore + abs(k - ( 1 / (M_sun + M_earth) ));
+
+return fScore;
+
 \end
 
 \User Makefile options:
@@ -100,7 +118,7 @@ float fScore = 0;
 \Default run parameters :
   Number of generations : 100
   Time limit: 0                  // In seconds, 0 to deactivate
-  Population size : 10000          // POP_SIZE
+  Population size : 1000          // POP_SIZE
   Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE
   Crossover probability : 1     
   Mutation probability : 1       // MUT_PROB probability to CALL the mutation function
@@ -112,7 +130,7 @@ float fScore = 0;
   Reduce offspring operator: Tournament 2 // how pre-selected children are chosen
   Final reduce operator: Tournament 2 // how the next gen. is chosen from parents + children
 
-  Elitism: Strong			           // Strong = best parents in the next gen.
+  Elitism: Weak			           // Strong = best parents in the next gen.
   Elite: 1                       // Weak = best of parents + children in the next gen.
   Print stats: true              // Default: true
   Generate csv stats file:false  // Default: false
@@ -128,3 +146,5 @@ float fScore = 0;
   Save population: false         // false or name of the file where to save the pop
   Start from file:false          // false or name of the file where to reload the pop
 \end
+
+

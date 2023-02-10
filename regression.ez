@@ -73,8 +73,8 @@ void free_data(){
 \end
 
 \After everything else function:
-  std::cout << toString(((IndividualImpl*)EA->population->Best)->root) << std::endl;
 
+  std::cout << toString(((IndividualImpl*)EA->population->Best)->root) << std::endl;
   free_data();
 \end
 
@@ -145,7 +145,7 @@ LDFLAGS+=
 \end
 
 \Default run parameters :        
-  Number of generations : 10   	          // NB_GEN
+  Number of generations : 1000   	          // NB_GEN
   Time limit: 0 			                    // In seconds, 0 to deactivate
   Population size : 5000			            // POP_SIZE
   Offspring size : 5000                   // can be a percentage such as 40% 
