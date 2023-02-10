@@ -5,7 +5,7 @@ Date:     14/01/2023
 __________________________________________________________*/
 
 \User declarations:
-#define NB_SAMP 10000 // number of samples
+#define NB_SAMP 1000 // number of samples
 static float sample[NB_SAMP][4]; // 3 for time, y position of earth and y position of sun and force
 
 #define G 6.67430e-11 // gravitational constant
@@ -33,7 +33,7 @@ for (int i=0;i<NB_SAMP;i++) { // for all samples
 	sample[i][1] = x_earth;
 	sample[i][2] = y_earth;
 	
-	float F = 1e18*(G*M_earth*M_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
+	float F = 1e18*(G*M_earth*M_sun)/(((x_earth)*(x_earth))+((y_earth)*(y_earth)));
 	sample[i][3] = F;
 }
 \end
@@ -57,40 +57,48 @@ GenomeClass {
 
 \GenomeClass::initialiser :
 
-Genome.mass_sun = random(0.7,1.2);  //mass of sun 
-Genome.mass_earth = random(1e-7, 1e-5); //mass of earth
-Genome.constante_grav = random(6.67e-13, 6.69e-10); //gravitational constant
+Genome.mass_sun = random(0.7,1.3);  //mass of sun 
+Genome.mass_earth = random(1e-8, 1e-5); //mass of earth
+Genome.constante_grav = random(6.67e-12, 6.69e-10); //gravitational constant
     
 \end
 
 \GenomeClass::crossover :
-float fLocus = random(0.0, 1.0);
-if (fLocus < 0.33) child.mass_earth = parent2.mass_earth;
-if (fLocus < 0.66 && fLocus >= 0.33) child.mass_sun = parent2.mass_sun;
-if (fLocus >= 0.66) child.constante_grav = parent2.constante_grav;
+int nLocus = random(0, 2); // choose a random locus to crossover
+for (int i=0;i<=nLocus;i++) {
+child.mass_earth=parent1.mass_earth;
+child.mass_sun=parent1.mass_sun;
+child.constante_grav=parent1.constante_grav;
+}
+for (int i=nLocus+1;i<3;i++) {
+child.mass_earth=parent2.mass_earth;
+child.mass_sun=parent2.mass_sun;
+child.constante_grav=parent2.constante_grav;
+}
 \end
 
 \GenomeClass::mutator :
 
+
 \end
 
 \GenomeClass::evaluator :
-float fScore=0;
-for (int i=0;i<NB_SAMP;i++) {
-
-  float x_earth = sample[i][0];
-  float y_earth = sample[i][1];
-  float F = 1e18*(Genome.constante_grav*Genome.mass_earth*Genome.mass_sun)/((x_earth)*(x_earth)+(y_earth)*(y_earth));
-  fScore+=abs(F-sample[i][3]);
-}
-return fScore;
+float fScore = 0;
+  for (int i = 0; i < NB_SAMP; i++) {
+    float x_earth = sample[i][1];
+    float y_earth = sample[i][2];
+    float F = 1e18 * (Genome.constante_grav * Genome.mass_earth * Genome.mass_sun) / 
+             ((x_earth) * (x_earth) + (y_earth) * (y_earth));
+    fScore += abs(F - sample[i][3]);
+  }
+  return fScore;
 \end
 
 \User Makefile options:
 \end
 
 \Default run parameters :
-  Number of generations : 1000
+  Number of generations : 100
   Time limit: 0                  // In seconds, 0 to deactivate
   Population size : 10000          // POP_SIZE
   Offspring size : 100%           // 40 means 40, 40% means 40% of POP_SIZE

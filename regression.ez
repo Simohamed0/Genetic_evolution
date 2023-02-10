@@ -26,7 +26,7 @@ __________________________________________________________*/
 #define GROW_FULL_RATIO 0.5     // cf. Koza's book on Genetic Programming
 
 #define NUMTHREAD 1024 // nb of threads in parallel on GPU cards.
-   // 1024 is the maximum on Fermi architectures. It is 512 on older cards
+    // 1024 is the maximum on Fermi architectures. It is 512 on older cards
 #define MAX_STACK 15
 
 #define PI (3.141592653589793)

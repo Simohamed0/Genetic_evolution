@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/aymane/Projects/sys_complex/Genetic_evolution/build",
+  "command": "/usr/bin/g++   -I/usr/local/easena/libeasea/include  -g   -O2 -g -Wall -Wextra -pedantic -fopenmp -o CMakeFiles/findfunc.dir/findfunc.cpp.o -c /home/aymane/Projects/sys_complex/Genetic_evolution/findfunc.cpp",
+  "file": "/home/aymane/Projects/sys_complex/Genetic_evolution/findfunc.cpp"
+},
+{
+  "directory": "/home/aymane/Projects/sys_complex/Genetic_evolution/build",
+  "command": "/usr/bin/g++   -I/usr/local/easena/libeasea/include  -g   -O2 -g -Wall -Wextra -pedantic -fopenmp -o CMakeFiles/findfunc.dir/findfuncIndividual.cpp.o -c /home/aymane/Projects/sys_complex/Genetic_evolution/findfuncIndividual.cpp",
+  "file": "/home/aymane/Projects/sys_complex/Genetic_evolution/findfuncIndividual.cpp"
+}
+]

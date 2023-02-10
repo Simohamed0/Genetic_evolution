@@ -1,0 +1,193 @@
+/*_________________________________________________________
+
+  This is a standard GP implementation on EASEA, 
+  aimed for regression.
+
+  For running on CPU, compile with:
+  $ make easeaclean ; easena -gp regression.ez ; make
+
+  Then run with:
+  $ ./regression --seed 2      // for a nice result :-)
+
+  You can test the parallel version on several cores with:
+  $ ./regression --seed 2 --nbCPUThreads 20
+
+  For running on GPU, compile with:	
+  $ make easeaclean ; easena -cuda_gp regression.ez ; make
+
+  Pierre Collet, 08/05/2020
+__________________________________________________________*/
+
+\User declarations :
+
+// these 3 defines are mandatory here. Adjust as you like.
+#define NO_FITNESS_CASES 1024
+#define VAR_LEN 1               // number of input variables
+#define GROW_FULL_RATIO 0.5     // cf. Koza's book on Genetic Programming
+
+#define NUMTHREAD 1024 // nb of threads in parallel on GPU cards.
+    // 1024 is the maximum on Fermi architectures. It is 512 on older cards
+#define MAX_STACK 15
+
+#define PI (3.141592653589793)
+#define G (6.67408e-1)
+#define M_sun (1.989e1)
+#define M_earth (5.972e1)
+#define min_r (1.0e01)
+#define max_r (2.0e01)
+
+#define NEWTON(r) (G*M_sun*M_earth)/(r*r) // This is the function to find back
+\end
+
+\User functions :
+
+/**
+   The "generateData()" function generates NO_FITNESS_CASES fitness cases,
+   from the polynome NEWTON(X) with X randomly picked between [-10,10[
+
+   @inputs: address of the inputs array. (array will be allocated here)
+   @outputs: adddress of the outputs array. (array will be allocated here)
+ */
+int generateData(float*** inputs, float** outputs){
+  int i=0;
+  (*inputs) = new float*[NO_FITNESS_CASES];
+  (*outputs) = new float[NO_FITNESS_CASES];
+  
+  for( i=0 ; i<NO_FITNESS_CASES ; i++ ){
+    (*inputs)[i]=new float[VAR_LEN];
+    float r = random(min_r,max_r);
+    (*inputs)[i][0] = r;
+    //(*inputs)[i][1] = G;
+    //(*inputs)[i][2] = M_earth;
+    //(*inputs)[i][3] = M_sun;
+
+    (*outputs)[i] = NEWTON(r);
+  }
+
+  return NO_FITNESS_CASES;
+}
+
+
+void free_data(){
+  for( int i=0 ; i<NO_FITNESS_CASES ;i++ ) delete[] inputs[i] ;
+  delete[] outputs;
+  delete[] inputs;
+} 
+\end
+
+
+
+\Before everything else function:
+  generateData(&inputs,&outputs);
+\end
+
+\After everything else function:
+  std::cout << toString(((IndividualImpl*)EA->population->Best)->root) << std::endl;
+
+  free_data();
+\end
+
+\At the beginning of each generation function:
+\end
+
+\At the end of each generation function:
+\end
+
+\At each generation before reduce function:
+\end
+
+
+\User classes :
+
+GenomeClass {
+  GPNode* root; // GPNode is a reserved name that must be used for GP
+}
+\end
+
+\GenomeClass::display:
+\end
+
+\GenomeClass::initialiser :
+  Genome.root = ramped_hh(); // Initializer, cf. Koza GP
+\end
+
+\GenomeClass::crossover :
+  simpleCrossOver(parent1,parent2,child); // cf. Koza GP
+  child.valid = false;       // to force the evaluation of the child
+\end
+
+\GenomeClass::mutator :
+  simple_mutator(&Genome); // cf. Koza GP
+\end
+
+
+\begin operator description :
+OP_X, "r", 0, {RESULT=INPUT[0];};
+OP_ERC, "ERC", 0, {RESULT=ERC;};
+OP_ADD, "+", 2, {RESULT=OP1+OP2;};
+OP_SUB, "-", 2, {RESULT=OP1-OP2;};
+OP_MUL, "*", 2, {RESULT=OP1*OP2;};
+OP_DIV, "/", 2, {
+  if( !OP2 ) RESULT = 1;
+  else RESULT = OP1/OP2;
+};
+
+// you can add other operators if you wish
+\end
+
+\GenomeClass::evaluator header:
+\end
+
+\GenomeClass::evaluator for each fc : // How to compute error for one point
+float expected_value = OUTPUT;
+error = (expected_value-EVOLVED_VALUE)*(expected_value-EVOLVED_VALUE);
+\end
+
+\GenomeClass::evaluator accumulator : // here, ERROR is the sum of errors for each point
+return error/(float)NO_FITNESS_CASES;
+\end
+
+
+\User Makefile options: 
+CXXFLAGS+=-I/usr/local/cuda/common/inc/ -I/usr/local/cuda/include/
+LDFLAGS+=
+\end
+
+\Default run parameters :        
+  Number of generations : 100 	          // NB_GEN
+  Time limit: 0 			                    // In seconds, 0 to deactivate
+  Population size : 5000			            // POP_SIZE
+  Offspring size : 5000                   // can be a percentage such as 40% 
+  Mutation probability : 0.2              // Probability to call the mutation function
+  Crossover probability : 1               // Probability to call the crossover function
+  Evaluator goal : minimise               // or Maximise
+  Selection operator: Tournament 7        // to select parents
+  Surviving parents: 100%                 // to select breeders
+  Surviving offspring: 100%               // to select among offspring for next generation
+  Reduce parents operator: Tournament 2   // how to select the breeders
+  Reduce offspring operator: Tournament 2 // how to select the offspring that will compete to access the next generation
+  Final reduce operator: Tournament 7     // to select the individuals composing the next generation
+
+  Elitism: Strong			                    // Strong = from parents pop, Weak = from parents + children
+  Elite: 1
+  Print stats: true
+  Generate csv stats file:false			
+  Generate gnuplot script:false
+  Generate R script:false
+  Plot stats:true	
+
+  Remote island model: false
+  IP file: ip.txt 			//File containing all the remote island's IP
+  Server port : 2929
+  Migration probability: 0.33
+
+  Save population: false
+  Start from file: false
+
+  max init tree depth : 4
+  min init tree depth : 2
+
+  max tree depth : 8
+
+  size of prog buffer : 200000000
+\end
